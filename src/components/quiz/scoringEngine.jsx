@@ -27,13 +27,21 @@ const calculateMaxScores = () => {
         maxScores[trait] += weight * 5;
       });
     } else {
-      // For multiple choice, find max trait contribution
-      Object.values(question.traits).forEach(traitContribution => {
-        Object.entries(traitContribution).forEach(([trait, weight]) => {
-          maxScores[trait] += weight;
+      // Multiple choice:
+      // For each trait, add ONLY the maximum possible contribution across options,
+      const perTraitMax = initializeTraitScores();
+
+      Object.values(question.traits).forEach(optionContribution => {
+        Object.entries(optionContribution).forEach(([trait, weight]) => {
+          perTraitMax[trait] = Math.max(perTraitMax[trait], weight);
         });
       });
+
+      Object.keys(perTraitMax).forEach(trait => {
+        maxScores[trait] += perTraitMax[trait];
+      });
     }
+
   });
   
   return maxScores;
