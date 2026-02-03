@@ -10,13 +10,42 @@ Many early-career learners (students, career changers, and entry-level professio
 - Computes role/pathway matches
 - Outputs a personalised pathway: recommended roles, skill gaps, and learning resources
 
-## How recommendations work (transparent method)
-Recommendations are produced using **[rule-based / weighted scoring / hybrid]** matching:
-- Inputs: **[list your assessment dimensions]**
-- Scoring: **[e.g., weighted sum with normalised scores; thresholds for “strong match”]**
-- Output: top-k pathways + rationale signals (why a pathway is recommended)
+## How recommendations work
 
-Implementation lives in: **`src/[path-to-scoring-logic]`**.
+The Cyber Career Compass uses a transparent, rule-based scoring approach to generate pathway recommendations.
+
+### 1. Trait scoring
+Each quiz question contributes to one or more traits (e.g. technical comfort, problem-solving, investigative curiosity).
+
+- **Likert-scale questions** contribute `weight × response value (1–5)` to the relevant traits.
+- **Multiple-choice questions** contribute fixed trait weights based on the selected option.
+
+Trait scores are accumulated across all questions.
+
+### 2. Normalisation
+Raw trait totals are normalised to a **0–100 scale**.  
+The maximum possible score for each trait is derived from the quiz design itself, ensuring that scores are comparable across users.
+
+### 3. Pathway matching
+Each career pathway defines a weighted trait profile indicating which traits are most important for that role.
+
+For each pathway:
+- The user’s normalised trait scores are combined using the pathway’s trait weights.
+- A weighted average produces a **pathway match score (0–100)**.
+- The top three pathways by match score are returned.
+
+### 4. Explainability
+To support interpretability, the app identifies the strongest contributing traits for each matched pathway and generates a short natural-language explanation (e.g. highlighting technical aptitude or investigative curiosity).
+
+### 5. Learning recommendations
+Associated courses are recommended based on:
+- Alignment with the matched pathways
+- Course level (foundation courses prioritised for early-career users)
+
+### Implementation
+- Trait scoring and pathway matching logic: `src/components/quiz/scoringEngine.jsx`
+- Quiz structure and trait mappings: `src/components/quiz/quizQuestions.jsx`
+- Pathway definitions and course mappings: `src/components/quiz/careerPathways.jsx`
 
 ## Evaluation (what we checked)
 - **Sanity checks:** deterministic outputs for fixed inputs; edge-case handling (empty/partial responses)
